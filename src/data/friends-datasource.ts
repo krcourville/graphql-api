@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { DynamoDBDocumentClient, PutCommand, GetCommand } from "@aws-sdk/lib-dynamodb";
 import { FriendInput } from "../types";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { PublishCommand, SNSClient } from '@aws-sdk/client-sns';
 
 export type Friend = {
     id: string;
@@ -13,12 +14,16 @@ const ddbClient = new DynamoDBClient({
 });
 
 const docClient = DynamoDBDocumentClient.from(ddbClient, {
-
     marshallOptions: {
         convertEmptyValues: true,
         removeUndefinedValues: true,
     }
 });
+
+const snsClient = new SNSClient({
+    endpoint: process.env.FRIENDS_DS__ENDPOINT,
+});
+
 
 const DELIM = "#";
 
@@ -37,11 +42,17 @@ export class FriendsDatasource {
             name: input.name,
         };
 
-        const res = await docClient.send(new PutCommand({
+        await docClient.send(new PutCommand({
             TableName: this.tableName,
             Item: item
         }));
-        console.log(res);
+
+        await snsClient.send(new PublishCommand({
+            TopicArn: process.env.FRIENDS_DS__TOPIC_ARN!,
+            Subject: "FriendCreated",
+            Message: JSON.stringify(item),
+        }));
+
 
         return {
             id: item.pk,

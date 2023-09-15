@@ -19,6 +19,7 @@
     "dependencies": {
         "@apollo/server": "^4.9.3",
         "@aws-sdk/client-dynamodb": "^3.410.0",
+        "@aws-sdk/client-sns": "^3.413.0",
         "@aws-sdk/lib-dynamodb": "^3.410.0",
         "aws-cdk-lib": "2.96.2",
         "constructs": "^10.0.0",

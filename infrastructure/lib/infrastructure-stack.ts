@@ -1,7 +1,9 @@
 import * as cdk from 'aws-cdk-lib';
 import * as dynamo from 'aws-cdk-lib/aws-dynamodb';
-import { Construct } from 'constructs';
+import * as sns from 'aws-cdk-lib/aws-sns';
 import * as sqs from 'aws-cdk-lib/aws-sqs';
+import * as subscriptions from 'aws-cdk-lib/aws-sns-subscriptions';
+import { Construct } from 'constructs';
 
 export class InfrastructureStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -22,13 +24,16 @@ export class InfrastructureStack extends cdk.Stack {
         });
 
         // sns topic
+        const topic = new sns.Topic(this, 'topic', {
+            topicName: 'friends-topic',
+        });
 
         // sqs queue subscribe to topic
-        // lambda handler
-
-        // example resource
-        const queue = new sqs.Queue(this, 'InfrastructureQueue', {
-            visibilityTimeout: cdk.Duration.seconds(300)
+        const queue = new sqs.Queue(this, 'queue', {
+            queueName: 'friends-queue',
         });
+        topic.addSubscription(new subscriptions.SqsSubscription(queue));
+
+        // lambda handler
     }
 }
