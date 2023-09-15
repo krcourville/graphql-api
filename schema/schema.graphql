@@ -10,5 +10,13 @@ type Friend {
 # clients can execute, along with the return type for each. In this
 # case, the "books" query returns an array of zero or more Friends (defined above).
 type Query {
-    friends: [Friend!]!
+    friends(id: ID!): [Friend!]!
+}
+
+input FriendInput {
+    name: String!
+}
+
+type Mutation {
+    addFriend(item: FriendInput!): Friend!
 }

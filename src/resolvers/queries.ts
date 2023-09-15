@@ -1,8 +1,8 @@
 import { QueryResolvers } from "../types";
 
 const queries: QueryResolvers = {
-    friends: async (_, __, ctx) => {
-        const items = await ctx.friendsDs.getFriends();
+    friends: async (_, { id }, ctx) => {
+        const items = await ctx.friendsDs.getFriend(id);
         return items;
     }
 }

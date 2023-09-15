@@ -7,6 +7,7 @@ export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: 
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
 export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never };
 export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
+export type RequireFields<T, K extends keyof T> = Omit<T, K> & { [P in K]-?: NonNullable<T[P]> };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: { input: string; output: string; }
@@ -22,9 +23,28 @@ export type Friend = {
   name: Scalars['String']['output'];
 };
 
+export type FriendInput = {
+  name: Scalars['String']['input'];
+};
+
+export type Mutation = {
+  __typename?: 'Mutation';
+  addFriend: Friend;
+};
+
+
+export type MutationAddFriendArgs = {
+  item: FriendInput;
+};
+
 export type Query = {
   __typename?: 'Query';
   friends: Array<Friend>;
+};
+
+
+export type QueryFriendsArgs = {
+  id: Scalars['ID']['input'];
 };
 
 export type WithIndex<TObject> = TObject & Record<string, any>;
@@ -101,7 +121,9 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 export type ResolversTypes = ResolversObject<{
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   Friend: ResolverTypeWrapper<Friend>;
+  FriendInput: FriendInput;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
+  Mutation: ResolverTypeWrapper<{}>;
   Query: ResolverTypeWrapper<{}>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
 }>;
@@ -110,7 +132,9 @@ export type ResolversTypes = ResolversObject<{
 export type ResolversParentTypes = ResolversObject<{
   Boolean: Scalars['Boolean']['output'];
   Friend: Friend;
+  FriendInput: FriendInput;
   ID: Scalars['ID']['output'];
+  Mutation: {};
   Query: {};
   String: Scalars['String']['output'];
 }>;
@@ -121,12 +145,17 @@ export type FriendResolvers<ContextType = ApiContext, ParentType extends Resolve
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type MutationResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
+  addFriend?: Resolver<ResolversTypes['Friend'], ParentType, ContextType, RequireFields<MutationAddFriendArgs, 'item'>>;
+}>;
+
 export type QueryResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
-  friends?: Resolver<Array<ResolversTypes['Friend']>, ParentType, ContextType>;
+  friends?: Resolver<Array<ResolversTypes['Friend']>, ParentType, ContextType, RequireFields<QueryFriendsArgs, 'id'>>;
 }>;
 
 export type Resolvers<ContextType = ApiContext> = ResolversObject<{
   Friend?: FriendResolvers<ContextType>;
+  Mutation?: MutationResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
 }>;
 
@@ -135,6 +164,16 @@ export type Resolvers<ContextType = ApiContext> = ResolversObject<{
  * @typedef {Object} Friend
  * @property {string} id
  * @property {string} name
+ */
+
+/**
+ * @typedef {Object} FriendInput
+ * @property {string} name
+ */
+
+/**
+ * @typedef {Object} Mutation
+ * @property {Friend} addFriend
  */
 
 /**

@@ -25,3 +25,7 @@ cdklocal bootstrap
 cdklocal deploy
 
 ```
+
+## URLs
+
+* [LocalStack Resource Browser](https://app.localstack.cloud/inst/default/resources)

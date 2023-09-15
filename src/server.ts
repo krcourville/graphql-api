@@ -1,4 +1,6 @@
 import dotenv from 'dotenv';
+dotenv.config();
+
 import { readFile } from 'node:fs/promises';
 import { ApolloServer } from '@apollo/server';
 import { ExpressContextFunctionArgument, expressMiddleware } from '@apollo/server/express4';
@@ -7,7 +9,6 @@ import express from 'express';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
 import {
     ApolloServerPluginLandingPageLocalDefault,
-    ApolloServerPluginLandingPageProductionDefault,
 } from '@apollo/server/plugin/landingPage/default';
 import pkg from 'body-parser';
 import cors from 'cors';
@@ -15,7 +16,6 @@ import cors from 'cors';
 import { ApiContext } from './context';
 import { resolvers } from './resolvers';
 
-dotenv.config();
 
 (function () {
     serve();
@@ -48,6 +48,7 @@ async function serve() {
             context: apiContext,
         })
     )
+    app.on('error', console.error);
     const port = Number(process.env.PORT || 3000);
     httpServer.listen({ port })
     console.log(`🚀 Server listening at: http://localhost:${port}/graphql`);
