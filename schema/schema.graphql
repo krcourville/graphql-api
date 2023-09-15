@@ -4,6 +4,13 @@
 type Friend {
     id: ID!
     name: String!
+    dog: DogBreed!
+}
+
+type DogBreed {
+    id: ID!
+    name: String!
+    knownFor: String!
 }
 
 # The "Query" type is special: it lists all of the available queries that
@@ -15,8 +22,15 @@ type Query {
 
 input FriendInput {
     name: String!
+    dogBreedId: ID!
+}
+
+input DogBreedInput {
+    name: String!
+    knownFor: String!
 }
 
 type Mutation {
     addFriend(item: FriendInput!): Friend!
+    addDog(item: DogBreedInput!): DogBreed!
 }

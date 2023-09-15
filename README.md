@@ -21,9 +21,20 @@ Sample app demonstrating the following:
 ```sh
 # start emulator and deploy resources
 localstack start
+npm run build
 cdklocal bootstrap
 cdklocal deploy
 
+
+```
+
+## Caveats
+
+Updating of some services in localstack is troublesome.  So far, it appears this can be worked
+around by restarting the emulator and performing a full deploy.
+
+```sh
+./scripts/deploy-local.sh
 ```
 
 ## URLs

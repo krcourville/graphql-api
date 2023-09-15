@@ -1,64 +1,57 @@
 import { v4 as uuidv4 } from 'uuid';
 import { DynamoDBDocumentClient, PutCommand, GetCommand } from "@aws-sdk/lib-dynamodb";
-import { FriendInput } from "../types";
-import { PublishCommand, SNSClient } from '@aws-sdk/client-sns';
+import { DogBreedInput } from "../types";
 import { EntityType } from './data-types';
 
-export type FriendEntity = {
+export type DogBreedEntity = {
     id: string;
     name: string;
+    knownFor: string;
 }
 
-export class FriendsDatasource {
+export class DogBreedsDatasource {
     private readonly tableName = process.env.FRIENDS_DS__TABLE_NAME!;
 
     constructor(
         private readonly docClient: DynamoDBDocumentClient,
-        private readonly snsClient: SNSClient,
-    ) {
-    }
+    ) { }
 
-    public async add(input: FriendInput): Promise<FriendEntity> {
+    public async add(input: DogBreedInput): Promise<DogBreedEntity> {
         const item = {
             pk: uuidv4(),
-            sk: EntityType.FRIEND,
+            sk: EntityType.DOG_BREED,
             name: input.name,
-            dogBreedId: input.dogBreedId,
+            knownFor: input.knownFor,
         };
-
         await this.docClient.send(new PutCommand({
             TableName: this.tableName,
             Item: item
         }));
-
-        await this.snsClient.send(new PublishCommand({
-            TopicArn: process.env.FRIENDS_DS__TOPIC_ARN!,
-            Subject: "FriendCreated",
-            Message: JSON.stringify(item),
-        }));
-
-
         return {
             id: item.pk,
-            name: item.sk,
+            name: item.name,
+            knownFor: item.knownFor,
         };
     }
-    public async getById(id: string): Promise<FriendEntity[]> {
+
+    public async getById(id: string): Promise<DogBreedEntity> {
         const res = await this.docClient.send(new GetCommand({
             TableName: this.tableName,
             Key: {
                 pk: id,
-                sk: EntityType.FRIEND
+                sk: EntityType.DOG_BREED,
             }
         }));
         const item = res.Item;
         if (item == null) {
-            throw new Error("Friend not found");
+            throw new Error("Dog breed not found");
         }
-        return [{
+        return {
             id: item.pk,
             name: item.name,
-        }];
+            knownFor: item.knownFor,
+        };
+
     }
 
 }

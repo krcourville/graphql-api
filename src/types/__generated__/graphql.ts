@@ -17,19 +17,39 @@ export type Scalars = {
   Float: { input: number; output: number; }
 };
 
+export type DogBreed = {
+  __typename?: 'DogBreed';
+  id: Scalars['ID']['output'];
+  knownFor: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+};
+
+export type DogBreedInput = {
+  knownFor: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+};
+
 export type Friend = {
   __typename?: 'Friend';
+  dog: DogBreed;
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
 };
 
 export type FriendInput = {
+  dogBreedId: Scalars['ID']['input'];
   name: Scalars['String']['input'];
 };
 
 export type Mutation = {
   __typename?: 'Mutation';
+  addDog: DogBreed;
   addFriend: Friend;
+};
+
+
+export type MutationAddDogArgs = {
+  item: DogBreedInput;
 };
 
 
@@ -120,6 +140,8 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = ResolversObject<{
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
+  DogBreed: ResolverTypeWrapper<DogBreed>;
+  DogBreedInput: DogBreedInput;
   Friend: ResolverTypeWrapper<Friend>;
   FriendInput: FriendInput;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
@@ -131,6 +153,8 @@ export type ResolversTypes = ResolversObject<{
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = ResolversObject<{
   Boolean: Scalars['Boolean']['output'];
+  DogBreed: DogBreed;
+  DogBreedInput: DogBreedInput;
   Friend: Friend;
   FriendInput: FriendInput;
   ID: Scalars['ID']['output'];
@@ -139,13 +163,22 @@ export type ResolversParentTypes = ResolversObject<{
   String: Scalars['String']['output'];
 }>;
 
+export type DogBreedResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['DogBreed'] = ResolversParentTypes['DogBreed']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  knownFor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type FriendResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['Friend'] = ResolversParentTypes['Friend']> = ResolversObject<{
+  dog?: Resolver<ResolversTypes['DogBreed'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type MutationResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
+  addDog?: Resolver<ResolversTypes['DogBreed'], ParentType, ContextType, RequireFields<MutationAddDogArgs, 'item'>>;
   addFriend?: Resolver<ResolversTypes['Friend'], ParentType, ContextType, RequireFields<MutationAddFriendArgs, 'item'>>;
 }>;
 
@@ -154,6 +187,7 @@ export type QueryResolvers<ContextType = ApiContext, ParentType extends Resolver
 }>;
 
 export type Resolvers<ContextType = ApiContext> = ResolversObject<{
+  DogBreed?: DogBreedResolvers<ContextType>;
   Friend?: FriendResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
@@ -161,18 +195,34 @@ export type Resolvers<ContextType = ApiContext> = ResolversObject<{
 
 
 /**
+ * @typedef {Object} DogBreed
+ * @property {string} id
+ * @property {string} knownFor
+ * @property {string} name
+ */
+
+/**
+ * @typedef {Object} DogBreedInput
+ * @property {string} knownFor
+ * @property {string} name
+ */
+
+/**
  * @typedef {Object} Friend
+ * @property {DogBreed} dog
  * @property {string} id
  * @property {string} name
  */
 
 /**
  * @typedef {Object} FriendInput
+ * @property {string} dogBreedId
  * @property {string} name
  */
 
 /**
  * @typedef {Object} Mutation
+ * @property {DogBreed} addDog
  * @property {Friend} addFriend
  */
 
