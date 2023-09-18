@@ -1,11 +1,16 @@
 # graphql-api
 
-Sample app demonstrating the following:
+Sample GraphQL-based API demonstrating the following:
 
 1. infrastructure management using AWS CDK
-2. AWS service emulation
-3. apollo server
+2. AWS service emulation via localstack
+3. apollo server implementation
 4. async processing
+5. improved workflow and build time error detection using codegen for types
+
+## Premise
+
+This api will support a social networking app for dog lovers who want to connect.
 
 ## Prerequisite Installations
 

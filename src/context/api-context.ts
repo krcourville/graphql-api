@@ -12,20 +12,22 @@ export class ApiContext {
     public readonly datasources: Datasources;
 
     constructor() {
-        const endpoint = process.env.AWS_ENDPOINT;
-        const ddbClient = new DynamoDBClient({
-            endpoint,
-        });
+        const awsClientConfig = {
+            /**
+             * allow local development against emulation.
+             * when AWS_ENDPOINT is undefined, calls will
+             * be maded against the real AWS services.
+             */
+            endpoint: process.env.AWS_ENDPOINT,
+        }
+        const ddbClient = new DynamoDBClient(awsClientConfig);
+        const snsClient = new SNSClient(awsClientConfig);
 
         const docClient = DynamoDBDocumentClient.from(ddbClient, {
             marshallOptions: {
                 convertEmptyValues: true,
                 removeUndefinedValues: true,
             }
-        });
-
-        const snsClient = new SNSClient({
-            endpoint,
         });
 
         this.datasources = {
