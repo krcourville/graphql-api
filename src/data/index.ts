@@ -1,2 +1,2 @@
-export * from './friends-datasource';
-export * from './dog-breeds-datasource';
+export * from './friends.datasource';
+export * from './dog-breeds.datasource';

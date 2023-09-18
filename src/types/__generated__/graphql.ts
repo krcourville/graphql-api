@@ -31,7 +31,7 @@ export type DogBreedInput = {
 
 export type Friend = {
   __typename?: 'Friend';
-  dog: DogBreed;
+  dogBreed: DogBreed;
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
 };
@@ -59,11 +59,12 @@ export type MutationAddFriendArgs = {
 
 export type Query = {
   __typename?: 'Query';
-  friends: Array<Friend>;
+  dogBreeds: Array<DogBreed>;
+  friend?: Maybe<Friend>;
 };
 
 
-export type QueryFriendsArgs = {
+export type QueryFriendArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -171,7 +172,7 @@ export type DogBreedResolvers<ContextType = ApiContext, ParentType extends Resol
 }>;
 
 export type FriendResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['Friend'] = ResolversParentTypes['Friend']> = ResolversObject<{
-  dog?: Resolver<ResolversTypes['DogBreed'], ParentType, ContextType>;
+  dogBreed?: Resolver<ResolversTypes['DogBreed'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -183,7 +184,8 @@ export type MutationResolvers<ContextType = ApiContext, ParentType extends Resol
 }>;
 
 export type QueryResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
-  friends?: Resolver<Array<ResolversTypes['Friend']>, ParentType, ContextType, RequireFields<QueryFriendsArgs, 'id'>>;
+  dogBreeds?: Resolver<Array<ResolversTypes['DogBreed']>, ParentType, ContextType>;
+  friend?: Resolver<Maybe<ResolversTypes['Friend']>, ParentType, ContextType, RequireFields<QueryFriendArgs, 'id'>>;
 }>;
 
 export type Resolvers<ContextType = ApiContext> = ResolversObject<{
@@ -209,7 +211,7 @@ export type Resolvers<ContextType = ApiContext> = ResolversObject<{
 
 /**
  * @typedef {Object} Friend
- * @property {DogBreed} dog
+ * @property {DogBreed} dogBreed
  * @property {string} id
  * @property {string} name
  */
@@ -228,5 +230,6 @@ export type Resolvers<ContextType = ApiContext> = ResolversObject<{
 
 /**
  * @typedef {Object} Query
- * @property {Array<Friend>} friends
+ * @property {Array<DogBreed>} dogBreeds
+ * @property {Friend} [friend]
  */

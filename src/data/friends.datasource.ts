@@ -7,6 +7,7 @@ import { EntityType } from './data-types';
 export type FriendEntity = {
     id: string;
     name: string;
+    dogBreedId: string;
 }
 
 export class FriendsDatasource {
@@ -41,9 +42,10 @@ export class FriendsDatasource {
         return {
             id: item.pk,
             name: item.sk,
+            dogBreedId: item.dogBreedId,
         };
     }
-    public async getById(id: string): Promise<FriendEntity[]> {
+    public async getById(id: string): Promise<FriendEntity> {
         const res = await this.docClient.send(new GetCommand({
             TableName: this.tableName,
             Key: {
@@ -55,10 +57,11 @@ export class FriendsDatasource {
         if (item == null) {
             throw new Error("Friend not found");
         }
-        return [{
+        return {
             id: item.pk,
             name: item.name,
-        }];
+            dogBreedId: item.dogBreedId,
+        };
     }
 
 }

@@ -4,20 +4,13 @@
 type Friend {
     id: ID!
     name: String!
-    dog: DogBreed!
+    dogBreed: DogBreed!
 }
 
 type DogBreed {
     id: ID!
     name: String!
     knownFor: String!
-}
-
-# The "Query" type is special: it lists all of the available queries that
-# clients can execute, along with the return type for each. In this
-# case, the "books" query returns an array of zero or more Friends (defined above).
-type Query {
-    friends(id: ID!): [Friend!]!
 }
 
 input FriendInput {
@@ -28,6 +21,14 @@ input FriendInput {
 input DogBreedInput {
     name: String!
     knownFor: String!
+}
+
+# The "Query" type is special: it lists all of the available queries that
+# clients can execute, along with the return type for each. In this
+# case, the "books" query returns an array of zero or more Friends (defined above).
+type Query {
+    friend(id: ID!): Friend
+    dogBreeds: [DogBreed!]!
 }
 
 type Mutation {

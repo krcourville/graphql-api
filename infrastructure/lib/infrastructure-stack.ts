@@ -13,7 +13,7 @@ export class InfrastructureStack extends cdk.Stack {
         super(scope, id, props);
 
         // dynamodb table
-        new dynamo.Table(this, 'table', {
+        const friendsTable = new dynamo.Table(this, 'table', {
             tableName: 'friends',
             partitionKey: {
                 name: 'pk',
@@ -23,7 +23,14 @@ export class InfrastructureStack extends cdk.Stack {
                 name: 'sk',
                 type: dynamo.AttributeType.STRING
             },
-            billingMode: dynamo.BillingMode.PAY_PER_REQUEST
+            billingMode: dynamo.BillingMode.PAY_PER_REQUEST,
+        });
+        friendsTable.addGlobalSecondaryIndex({
+            indexName: "index-sk",
+            partitionKey: {
+                name: 'sk',
+                type: dynamo.AttributeType.STRING
+            },
         });
 
         // sns topic

@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { DynamoDBDocumentClient, PutCommand, GetCommand } from "@aws-sdk/lib-dynamodb";
+import { DynamoDBDocumentClient, PutCommand, GetCommand, ScanCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
 import { DogBreedInput } from "../types";
 import { EntityType } from './data-types';
 
@@ -10,6 +10,7 @@ export type DogBreedEntity = {
 }
 
 export class DogBreedsDatasource {
+
     private readonly tableName = process.env.FRIENDS_DS__TABLE_NAME!;
 
     constructor(
@@ -34,6 +35,25 @@ export class DogBreedsDatasource {
         };
     }
 
+    public async getAll(): Promise<DogBreedEntity[]> {
+        // TODO: paging
+        const res = await this.docClient.send(new QueryCommand({
+            TableName: this.tableName,
+            IndexName: "index-sk",
+            KeyConditionExpression: "sk = :sk",
+            ExpressionAttributeValues: {
+                ":sk": EntityType.DOG_BREED,
+            }
+        }));
+        const items = res.Items ?? [];
+        // TODO: where should this common mapping logic be handled?
+        return items.map(item => ({
+            id: item.pk,
+            name: item.name,
+            knownFor: item.knownFor,
+        }));
+    }
+
     public async getById(id: string): Promise<DogBreedEntity> {
         const res = await this.docClient.send(new GetCommand({
             TableName: this.tableName,
@@ -53,5 +73,4 @@ export class DogBreedsDatasource {
         };
 
     }
-
 }
