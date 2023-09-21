@@ -15,13 +15,12 @@ import cors from 'cors';
 
 import { ApiContext } from './context';
 import { resolvers } from './resolvers';
-
+import { resolve } from './app/injection';
+import { userContextMiddleware } from './context/user-context';
 
 (function () {
     serve();
 })();
-
-
 
 async function serve() {
     const app = express();
@@ -35,7 +34,6 @@ async function serve() {
             ApolloServerPluginDrainHttpServer({ httpServer }),
             ApolloServerPluginLandingPageLocalDefault({ footer: false })
         ]
-
     });
 
     await server.start();
@@ -44,16 +42,19 @@ async function serve() {
         '/graphql',
         cors(),
         json(),
+        userContextMiddleware(),
         expressMiddleware(server, {
             context: apiContext,
         })
     )
-    app.on('error', console.error);
+    app.on('error', (err) => {
+        console.log(err);
+    });
     const port = Number(process.env.PORT || 3000);
     httpServer.listen({ port })
     console.log(`🚀 Server listening at: http://localhost:${port}/graphql`);
 }
-
+const context = resolve(ApiContext);
 async function apiContext(args: ExpressContextFunctionArgument): Promise<ApiContext> {
-    return new ApiContext();
+    return context;
 }

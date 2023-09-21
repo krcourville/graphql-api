@@ -1,38 +1,13 @@
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DogBreedsDatasource, FriendsDatasource } from '../data';
-import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
-import { SNSClient } from '@aws-sdk/client-sns';
+import { Datasources } from "./datasources";
+import { singleton } from '$app';
+import { UserContextProvider } from "./user-context";
 
-export type Datasources = {
-    friends: FriendsDatasource;
-    dogBreeds: DogBreedsDatasource;
-}
-
+@singleton()
 export class ApiContext {
-    public readonly datasources: Datasources;
-
-    constructor() {
-        const awsClientConfig = {
-            /**
-             * allow local development against emulation.
-             * when AWS_ENDPOINT is undefined, calls will
-             * be maded against the real AWS services.
-             */
-            endpoint: process.env.AWS_ENDPOINT,
-        }
-        const ddbClient = new DynamoDBClient(awsClientConfig);
-        const snsClient = new SNSClient(awsClientConfig);
-
-        const docClient = DynamoDBDocumentClient.from(ddbClient, {
-            marshallOptions: {
-                convertEmptyValues: true,
-                removeUndefinedValues: true,
-            }
-        });
-
-        this.datasources = {
-            friends: new FriendsDatasource(docClient, snsClient),
-            dogBreeds: new DogBreedsDatasource(ddbClient)
-        }
+    constructor(
+        public readonly datasources: Datasources,
+        public readonly user: UserContextProvider,
+    ) {
+        console.log('test');
     }
 }

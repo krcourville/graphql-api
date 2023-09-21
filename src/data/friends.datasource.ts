@@ -1,8 +1,10 @@
 import { v4 as uuidv4 } from 'uuid';
 import { DynamoDBDocumentClient, PutCommand, GetCommand } from "@aws-sdk/lib-dynamodb";
+import { singleton } from '$app';
 import { FriendInput } from "../types";
 import { PublishCommand, SNSClient } from '@aws-sdk/client-sns';
 import { EntityType } from './data-types';
+import { AwsClients } from 'src/context/aws-clients';
 
 export type FriendEntity = {
     id: string;
@@ -10,12 +12,12 @@ export type FriendEntity = {
     dogBreedId: string;
 }
 
+@singleton()
 export class FriendsDatasource {
     private readonly tableName = process.env.FRIENDS_DS__TABLE_NAME!;
 
     constructor(
-        private readonly docClient: DynamoDBDocumentClient,
-        private readonly snsClient: SNSClient,
+        private readonly aws: AwsClients,
     ) {
     }
 
@@ -27,12 +29,12 @@ export class FriendsDatasource {
             dogBreedId: input.dogBreedId,
         };
 
-        await this.docClient.send(new PutCommand({
+        await this.aws.dynamoDocument.send(new PutCommand({
             TableName: this.tableName,
             Item: item
         }));
 
-        await this.snsClient.send(new PublishCommand({
+        await this.aws.sns.send(new PublishCommand({
             TopicArn: process.env.FRIENDS_DS__TOPIC_ARN!,
             Subject: "FriendCreated",
             Message: JSON.stringify(item),
@@ -46,7 +48,7 @@ export class FriendsDatasource {
         };
     }
     public async getById(id: string): Promise<FriendEntity> {
-        const res = await this.docClient.send(new GetCommand({
+        const res = await this.aws.dynamoDocument.send(new GetCommand({
             TableName: this.tableName,
             Key: {
                 pk: id,

@@ -11,6 +11,7 @@ type DogBreed {
     id: ID!
     name: String!
     knownFor: String!
+    createdBy: String!
 }
 
 input FriendInput {

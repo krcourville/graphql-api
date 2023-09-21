@@ -1,30 +1,40 @@
 import { v4 as uuidv4 } from 'uuid';
+import { singleton } from '$app';
 import { DynamoDBDocumentClient, PutCommand, GetCommand, ScanCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
 import { DogBreedInput } from "../types";
 import { EntityType } from './data-types';
+import { AwsClients } from 'src/context/aws-clients';
+import { UserContextProvider } from 'src/context/user-context';
 
 export type DogBreedEntity = {
     id: string;
     name: string;
     knownFor: string;
+    createdBy: string;
 }
 
+@singleton()
 export class DogBreedsDatasource {
 
     private readonly tableName = process.env.FRIENDS_DS__TABLE_NAME!;
 
     constructor(
-        private readonly docClient: DynamoDBDocumentClient,
+        private readonly aws: AwsClients,
+        private readonly userContextProvider: UserContextProvider,
     ) { }
 
     public async add(input: DogBreedInput): Promise<DogBreedEntity> {
+        const user = await this.userContextProvider.get();
+        const { dynamoDocument } = this.aws;
+        await new Promise(resolve => setTimeout(resolve, 5000));
         const item = {
             pk: uuidv4(),
             sk: EntityType.DOG_BREED,
             name: input.name,
             knownFor: input.knownFor,
+            createdBy: `${user.username}#${user.clientId}`
         };
-        await this.docClient.send(new PutCommand({
+        await dynamoDocument.send(new PutCommand({
             TableName: this.tableName,
             Item: item
         }));
@@ -32,12 +42,13 @@ export class DogBreedsDatasource {
             id: item.pk,
             name: item.name,
             knownFor: item.knownFor,
+            createdBy: item.createdBy,
         };
     }
 
     public async getAll(): Promise<DogBreedEntity[]> {
         // TODO: paging
-        const res = await this.docClient.send(new QueryCommand({
+        const res = await this.aws.dynamoDocument.send(new QueryCommand({
             TableName: this.tableName,
             IndexName: "index-sk",
             KeyConditionExpression: "sk = :sk",
@@ -51,11 +62,12 @@ export class DogBreedsDatasource {
             id: item.pk,
             name: item.name,
             knownFor: item.knownFor,
+            createdBy: item.createdBy,
         }));
     }
 
     public async getById(id: string): Promise<DogBreedEntity> {
-        const res = await this.docClient.send(new GetCommand({
+        const res = await this.aws.dynamoDocument.send(new GetCommand({
             TableName: this.tableName,
             Key: {
                 pk: id,
@@ -70,6 +82,7 @@ export class DogBreedsDatasource {
             id: item.pk,
             name: item.name,
             knownFor: item.knownFor,
+            createdBy: item.createdBy,
         };
 
     }

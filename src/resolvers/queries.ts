@@ -2,7 +2,9 @@ import { DogBreedResolvers, FriendResolvers, QueryResolvers } from "../types";
 
 export const Query: QueryResolvers = {
     // TODO: can we avoid `any` here?
-    friend: (_parent, args, _ctx) => ({ id: args.id } as any),
+    friend: (_parent, args, _ctx) => {
+        return ({ id: args.id } as any);
+    },
     dogBreeds: async (_parent, _args, ctx) => {
         const { datasources: ds } = ctx;
         const items = await ds.dogBreeds.getAll();
@@ -43,5 +45,11 @@ export const DogBreed: DogBreedResolvers = {
         const { datasources: ds } = ctx;
         const { name } = await ds.dogBreeds.getById(parent.id);
         return name;
-    }
+    },
+    createdBy: async (parent, _, ctx) => {
+        const { datasources: ds } = ctx;
+        const { createdBy } = await ds.dogBreeds.getById(parent.id);
+        return createdBy ?? 'unknown';
+    },
+
 };

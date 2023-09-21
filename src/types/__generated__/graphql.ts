@@ -19,6 +19,7 @@ export type Scalars = {
 
 export type DogBreed = {
   __typename?: 'DogBreed';
+  createdBy: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   knownFor: Scalars['String']['output'];
   name: Scalars['String']['output'];
@@ -165,6 +166,7 @@ export type ResolversParentTypes = ResolversObject<{
 }>;
 
 export type DogBreedResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['DogBreed'] = ResolversParentTypes['DogBreed']> = ResolversObject<{
+  createdBy?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   knownFor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -198,6 +200,7 @@ export type Resolvers<ContextType = ApiContext> = ResolversObject<{
 
 /**
  * @typedef {Object} DogBreed
+ * @property {string} createdBy
  * @property {string} id
  * @property {string} knownFor
  * @property {string} name

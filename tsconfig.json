@@ -15,7 +15,9 @@
         "emitDecoratorMetadata": true,
         "baseUrl": ".",
         "paths": {
-            "$lib/*": ["./src/lib/*"]
+            "$lib/*": ["./src/lib/*"],
+            "$app": ["./src/app"],
+            "$data": ["./src/data"]
         },
         "outDir": "dist",
         "sourceMap": true
