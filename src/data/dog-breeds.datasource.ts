@@ -1,17 +1,11 @@
 import { v4 as uuidv4 } from 'uuid';
 import { singleton } from '$app';
-import { DynamoDBDocumentClient, PutCommand, GetCommand, ScanCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
+import { PutCommand, GetCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
 import { DogBreedInput } from "../types";
 import { EntityType } from './data-types';
 import { AwsClients } from 'src/context/aws-clients';
 import { UserContextProvider } from 'src/context/user-context';
-
-export type DogBreedEntity = {
-    id: string;
-    name: string;
-    knownFor: string;
-    createdBy: string;
-}
+import { DogBreedEntity } from './data-types';
 
 @singleton()
 export class DogBreedsDatasource {

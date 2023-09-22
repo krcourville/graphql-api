@@ -1,4 +1,5 @@
 import { GraphQLResolveInfo } from 'graphql';
+import { FriendEntity, DogBreedEntity } from 'src/data/data-types';
 import { ApiContext } from '../../context/index';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
@@ -62,6 +63,7 @@ export type Query = {
   __typename?: 'Query';
   dogBreeds: Array<DogBreed>;
   friend?: Maybe<Friend>;
+  friends: Array<Friend>;
 };
 
 
@@ -142,9 +144,9 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = ResolversObject<{
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
-  DogBreed: ResolverTypeWrapper<DogBreed>;
+  DogBreed: ResolverTypeWrapper<DogBreedEntity>;
   DogBreedInput: DogBreedInput;
-  Friend: ResolverTypeWrapper<Friend>;
+  Friend: ResolverTypeWrapper<FriendEntity>;
   FriendInput: FriendInput;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   Mutation: ResolverTypeWrapper<{}>;
@@ -155,9 +157,9 @@ export type ResolversTypes = ResolversObject<{
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = ResolversObject<{
   Boolean: Scalars['Boolean']['output'];
-  DogBreed: DogBreed;
+  DogBreed: DogBreedEntity;
   DogBreedInput: DogBreedInput;
-  Friend: Friend;
+  Friend: FriendEntity;
   FriendInput: FriendInput;
   ID: Scalars['ID']['output'];
   Mutation: {};
@@ -188,6 +190,7 @@ export type MutationResolvers<ContextType = ApiContext, ParentType extends Resol
 export type QueryResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
   dogBreeds?: Resolver<Array<ResolversTypes['DogBreed']>, ParentType, ContextType>;
   friend?: Resolver<Maybe<ResolversTypes['Friend']>, ParentType, ContextType, RequireFields<QueryFriendArgs, 'id'>>;
+  friends?: Resolver<Array<ResolversTypes['Friend']>, ParentType, ContextType>;
 }>;
 
 export type Resolvers<ContextType = ApiContext> = ResolversObject<{
@@ -235,4 +238,5 @@ export type Resolvers<ContextType = ApiContext> = ResolversObject<{
  * @typedef {Object} Query
  * @property {Array<DogBreed>} dogBreeds
  * @property {Friend} [friend]
+ * @property {Array<Friend>} friends
  */

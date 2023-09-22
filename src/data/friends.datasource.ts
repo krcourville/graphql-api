@@ -1,25 +1,20 @@
 import { v4 as uuidv4 } from 'uuid';
-import { DynamoDBDocumentClient, PutCommand, GetCommand } from "@aws-sdk/lib-dynamodb";
+import { PutCommand, GetCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
 import { singleton } from '$app';
 import { FriendInput } from "../types";
-import { PublishCommand, SNSClient } from '@aws-sdk/client-sns';
+import { PublishCommand } from '@aws-sdk/client-sns';
 import { EntityType } from './data-types';
 import { AwsClients } from 'src/context/aws-clients';
-
-export type FriendEntity = {
-    id: string;
-    name: string;
-    dogBreedId: string;
-}
+import { FriendEntity } from './data-types';
 
 @singleton()
 export class FriendsDatasource {
+
     private readonly tableName = process.env.FRIENDS_DS__TABLE_NAME!;
 
     constructor(
         private readonly aws: AwsClients,
-    ) {
-    }
+    ) { }
 
     public async add(input: FriendInput): Promise<FriendEntity> {
         const item = {
@@ -66,4 +61,22 @@ export class FriendsDatasource {
         };
     }
 
+    public async getAll(): Promise<FriendEntity[]> {
+        // TODO: paging
+        const res = await this.aws.dynamoDocument.send(new QueryCommand({
+            TableName: this.tableName,
+            IndexName: "index-sk",
+            KeyConditionExpression: "sk = :sk",
+            ExpressionAttributeValues: {
+                ":sk": EntityType.FRIEND,
+            }
+        }));
+        const items = res.Items ?? [];
+        // TODO: where should this common mapping logic be handled?
+        return items.map(item => ({
+            id: item.pk,
+            name: item.name,
+            dogBreedId: item.dogBreedId,
+        }));
+    }
 }

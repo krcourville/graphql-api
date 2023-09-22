@@ -30,6 +30,7 @@ input DogBreedInput {
 type Query {
     friend(id: ID!): Friend
     dogBreeds: [DogBreed!]!
+    friends: [Friend!]!
 }
 
 type Mutation {

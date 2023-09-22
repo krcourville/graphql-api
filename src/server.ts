@@ -50,7 +50,7 @@ async function serve() {
     app.on('error', (err) => {
         console.log(err);
     });
-    const port = Number(process.env.PORT || 3000);
+    const port = Number(process.env.PORT || 4000);
     httpServer.listen({ port })
     console.log(`🚀 Server listening at: http://localhost:${port}/graphql`);
 }
