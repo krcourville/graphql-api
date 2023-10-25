@@ -14,8 +14,8 @@ generates:
             useIndexSignature: true
             contextType: "../../context/index#ApiContext"
             mappers:
-                Friend: src/data/data-types#FriendEntity
-                DogBreed: src/data/data-types#DogBreedEntity
+                Person: src/data/data-types#PersonModel
+                DogBreed: src/data/data-types#DogBreedModel
 
     # ./integration-tests/test-api-client/__generated__/:
     #     preset: client

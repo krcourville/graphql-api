@@ -1,5 +1,5 @@
 import { GraphQLResolveInfo } from 'graphql';
-import { FriendEntity, DogBreedEntity } from 'src/data/data-types';
+import { PersonModel, DogBreedModel } from 'src/data/data-types';
 import { ApiContext } from '../../context/index';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
@@ -18,57 +18,76 @@ export type Scalars = {
   Float: { input: number; output: number; }
 };
 
-export type DogBreed = {
-  __typename?: 'DogBreed';
-  createdBy: Scalars['String']['output'];
-  id: Scalars['ID']['output'];
-  knownFor: Scalars['String']['output'];
-  name: Scalars['String']['output'];
+export type FollowConnection = {
+  __typename?: 'FollowConnection';
+  edges: Array<FollowEdge>;
+  pageInfo: PageInfo;
 };
 
-export type DogBreedInput = {
-  knownFor: Scalars['String']['input'];
+export type FollowEdge = {
+  __typename?: 'FollowEdge';
+  cursor: Scalars['String']['output'];
+  established: Scalars['String']['output'];
+  node: VetNode;
+};
+
+export type FollowInput = {
+  personId: Scalars['ID']['input'];
+  vet: FollowVetInput;
+};
+
+export type FollowResult = {
+  __typename?: 'FollowResult';
+  success: Scalars['Boolean']['output'];
+};
+
+export type FollowVetInput = {
+  location: Scalars['String']['input'];
   name: Scalars['String']['input'];
-};
-
-export type Friend = {
-  __typename?: 'Friend';
-  dogBreed: DogBreed;
-  id: Scalars['ID']['output'];
-  name: Scalars['String']['output'];
-};
-
-export type FriendInput = {
-  dogBreedId: Scalars['ID']['input'];
-  name: Scalars['String']['input'];
+  vetId: Scalars['ID']['input'];
 };
 
 export type Mutation = {
   __typename?: 'Mutation';
-  addDog: DogBreed;
-  addFriend: Friend;
+  follow: FollowResult;
 };
 
 
-export type MutationAddDogArgs = {
-  item: DogBreedInput;
+export type MutationFollowArgs = {
+  input: FollowInput;
+};
+
+export type PageInfo = {
+  __typename?: 'PageInfo';
+  endCursor: Scalars['String']['output'];
+  hasNextPage: Scalars['Boolean']['output'];
+};
+
+export type PersonNode = {
+  __typename?: 'PersonNode';
+  follows?: Maybe<FollowConnection>;
+  id: Scalars['ID']['output'];
 };
 
 
-export type MutationAddFriendArgs = {
-  item: FriendInput;
+export type PersonNodeFollowsArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type Query = {
   __typename?: 'Query';
-  dogBreeds: Array<DogBreed>;
-  friend?: Maybe<Friend>;
-  friends: Array<Friend>;
+  person?: Maybe<PersonNode>;
 };
 
 
-export type QueryFriendArgs = {
+export type QueryPersonArgs = {
   id: Scalars['ID']['input'];
+};
+
+export type VetNode = {
+  __typename?: 'VetNode';
+  id: Scalars['ID']['output'];
 };
 
 export type WithIndex<TObject> = TObject & Record<string, any>;
@@ -144,99 +163,148 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = ResolversObject<{
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
-  DogBreed: ResolverTypeWrapper<DogBreedEntity>;
-  DogBreedInput: DogBreedInput;
-  Friend: ResolverTypeWrapper<FriendEntity>;
-  FriendInput: FriendInput;
+  FollowConnection: ResolverTypeWrapper<FollowConnection>;
+  FollowEdge: ResolverTypeWrapper<FollowEdge>;
+  FollowInput: FollowInput;
+  FollowResult: ResolverTypeWrapper<FollowResult>;
+  FollowVetInput: FollowVetInput;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
+  Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   Mutation: ResolverTypeWrapper<{}>;
+  PageInfo: ResolverTypeWrapper<PageInfo>;
+  PersonNode: ResolverTypeWrapper<PersonNode>;
   Query: ResolverTypeWrapper<{}>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
+  VetNode: ResolverTypeWrapper<VetNode>;
 }>;
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = ResolversObject<{
   Boolean: Scalars['Boolean']['output'];
-  DogBreed: DogBreedEntity;
-  DogBreedInput: DogBreedInput;
-  Friend: FriendEntity;
-  FriendInput: FriendInput;
+  FollowConnection: FollowConnection;
+  FollowEdge: FollowEdge;
+  FollowInput: FollowInput;
+  FollowResult: FollowResult;
+  FollowVetInput: FollowVetInput;
   ID: Scalars['ID']['output'];
+  Int: Scalars['Int']['output'];
   Mutation: {};
+  PageInfo: PageInfo;
+  PersonNode: PersonNode;
   Query: {};
   String: Scalars['String']['output'];
+  VetNode: VetNode;
 }>;
 
-export type DogBreedResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['DogBreed'] = ResolversParentTypes['DogBreed']> = ResolversObject<{
-  createdBy?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  knownFor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+export type FollowConnectionResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FollowConnection'] = ResolversParentTypes['FollowConnection']> = ResolversObject<{
+  edges?: Resolver<Array<ResolversTypes['FollowEdge']>, ParentType, ContextType>;
+  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type FriendResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['Friend'] = ResolversParentTypes['Friend']> = ResolversObject<{
-  dogBreed?: Resolver<ResolversTypes['DogBreed'], ParentType, ContextType>;
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+export type FollowEdgeResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FollowEdge'] = ResolversParentTypes['FollowEdge']> = ResolversObject<{
+  cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  established?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  node?: Resolver<ResolversTypes['VetNode'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type FollowResultResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FollowResult'] = ResolversParentTypes['FollowResult']> = ResolversObject<{
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type MutationResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
-  addDog?: Resolver<ResolversTypes['DogBreed'], ParentType, ContextType, RequireFields<MutationAddDogArgs, 'item'>>;
-  addFriend?: Resolver<ResolversTypes['Friend'], ParentType, ContextType, RequireFields<MutationAddFriendArgs, 'item'>>;
+  follow?: Resolver<ResolversTypes['FollowResult'], ParentType, ContextType, RequireFields<MutationFollowArgs, 'input'>>;
+}>;
+
+export type PageInfoResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['PageInfo'] = ResolversParentTypes['PageInfo']> = ResolversObject<{
+  endCursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  hasNextPage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type PersonNodeResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['PersonNode'] = ResolversParentTypes['PersonNode']> = ResolversObject<{
+  follows?: Resolver<Maybe<ResolversTypes['FollowConnection']>, ParentType, ContextType, Partial<PersonNodeFollowsArgs>>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type QueryResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
-  dogBreeds?: Resolver<Array<ResolversTypes['DogBreed']>, ParentType, ContextType>;
-  friend?: Resolver<Maybe<ResolversTypes['Friend']>, ParentType, ContextType, RequireFields<QueryFriendArgs, 'id'>>;
-  friends?: Resolver<Array<ResolversTypes['Friend']>, ParentType, ContextType>;
+  person?: Resolver<Maybe<ResolversTypes['PersonNode']>, ParentType, ContextType, RequireFields<QueryPersonArgs, 'id'>>;
+}>;
+
+export type VetNodeResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['VetNode'] = ResolversParentTypes['VetNode']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type Resolvers<ContextType = ApiContext> = ResolversObject<{
-  DogBreed?: DogBreedResolvers<ContextType>;
-  Friend?: FriendResolvers<ContextType>;
+  FollowConnection?: FollowConnectionResolvers<ContextType>;
+  FollowEdge?: FollowEdgeResolvers<ContextType>;
+  FollowResult?: FollowResultResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
+  PageInfo?: PageInfoResolvers<ContextType>;
+  PersonNode?: PersonNodeResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
+  VetNode?: VetNodeResolvers<ContextType>;
 }>;
 
 
 /**
- * @typedef {Object} DogBreed
- * @property {string} createdBy
- * @property {string} id
- * @property {string} knownFor
- * @property {string} name
+ * @typedef {Object} FollowConnection
+ * @property {Array<FollowEdge>} edges
+ * @property {PageInfo} pageInfo
  */
 
 /**
- * @typedef {Object} DogBreedInput
- * @property {string} knownFor
- * @property {string} name
+ * @typedef {Object} FollowEdge
+ * @property {string} cursor
+ * @property {string} established
+ * @property {VetNode} node
  */
 
 /**
- * @typedef {Object} Friend
- * @property {DogBreed} dogBreed
- * @property {string} id
- * @property {string} name
+ * @typedef {Object} FollowInput
+ * @property {string} personId
+ * @property {FollowVetInput} vet
  */
 
 /**
- * @typedef {Object} FriendInput
- * @property {string} dogBreedId
+ * @typedef {Object} FollowResult
+ * @property {boolean} success
+ */
+
+/**
+ * @typedef {Object} FollowVetInput
+ * @property {string} location
  * @property {string} name
+ * @property {string} vetId
  */
 
 /**
  * @typedef {Object} Mutation
- * @property {DogBreed} addDog
- * @property {Friend} addFriend
+ * @property {FollowResult} follow
+ */
+
+/**
+ * @typedef {Object} PageInfo
+ * @property {string} endCursor
+ * @property {boolean} hasNextPage
+ */
+
+/**
+ * @typedef {Object} PersonNode
+ * @property {FollowConnection} [follows]
+ * @property {string} id
  */
 
 /**
  * @typedef {Object} Query
- * @property {Array<DogBreed>} dogBreeds
- * @property {Friend} [friend]
- * @property {Array<Friend>} friends
+ * @property {PersonNode} [person]
+ */
+
+/**
+ * @typedef {Object} VetNode
+ * @property {string} id
  */

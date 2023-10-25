@@ -1,10 +1,9 @@
 import { singleton } from '$app';
-import { DogBreedsDatasource, FriendsDatasource } from "$data";
+import { PersonDatasource } from "$data";
 
 @singleton()
 export class Datasources {
     constructor(
-        public readonly friends: FriendsDatasource,
-        public readonly dogBreeds: DogBreedsDatasource,
+        public readonly person: PersonDatasource,
     ) { }
 }

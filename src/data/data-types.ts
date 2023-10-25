@@ -1,20 +1,35 @@
 
 const DELIM = "#";
-export const FRIEND = 'F';
 
 export const EntityType = {
-    FRIEND: 'F',
+    PERSON: 'P',
     DOG_BREED: 'DB',
+    EDGE: 'E',
+    VET: 'V',
+    FOLLOW: 'F'
 };
-export type DogBreedEntity = {
+export type DogBreedModel = {
     id: string;
     name: string;
     knownFor: string;
     createdBy: string;
 };
 
-export type FriendEntity = {
+export type PersonModel = {
     id: string;
     name: string;
-    dogBreedId: string;
 };
+
+
+export function composeKey(...args: string[]) {
+    return args.join(DELIM);
+}
+
+export function extractId(key: string): string {
+    const id = key.split(DELIM).at(-1);
+    if (id == null) {
+        throw new Error("could not extract id");
+    }
+
+    return id;
+}

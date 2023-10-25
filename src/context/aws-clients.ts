@@ -3,8 +3,6 @@ import { SNSClient } from "@aws-sdk/client-sns";
 import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 import { singleton } from '$app';
 
-let instanceCount = 0;
-
 /**
  * Note: this class violates SOLID a bit.
  * However, tsyringe does not work with any of
@@ -18,7 +16,6 @@ export class AwsClients {
     public readonly dynamoDocument: DynamoDBDocumentClient;
 
     constructor() {
-        console.log('AwsClients.ctor', ++instanceCount);
         const awsClientConfig = {
             /**
              * allow local development against emulation.

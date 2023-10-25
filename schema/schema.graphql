@@ -1,39 +1,64 @@
-# Comments in GraphQL strings (such as this one) start with the hash (#) symbol.
 
-# This "Friend" type defines the queryable fields for every friend in our data source.
-type Friend {
+
+# Use case:
+# - A Person can follow a Vet
+# - The connection will contain Vet name and location
+#   which can be used in filtering, sorting
+
+# Reference:
+# https://graphql.org/learn/pagination/
+# https://www.apollographql.com/docs/react/pagination/cursor-based/
+# https://relay.dev/graphql/connections.htm
+
+type VetNode {
     id: ID!
-    name: String!
-    dogBreed: DogBreed!
 }
 
-type DogBreed {
+type FollowEdge {
+    established: String!
+    node: VetNode!
+    cursor: String!
+}
+
+type FollowConnection {
+    pageInfo: PageInfo!
+    edges: [FollowEdge!]!
+}
+
+type PersonNode {
     id: ID!
-    name: String!
-    knownFor: String!
-    createdBy: String!
+    follows(first: Int, after: String): FollowConnection
 }
 
-input FriendInput {
-    name: String!
-    dogBreedId: ID!
+
+
+type FollowResult {
+    success: Boolean!
 }
 
-input DogBreedInput {
+input FollowVetInput {
+    vetId: ID!
     name: String!
-    knownFor: String!
+    location: String!
 }
 
-# The "Query" type is special: it lists all of the available queries that
-# clients can execute, along with the return type for each. In this
-# case, the "books" query returns an array of zero or more Friends (defined above).
+input FollowInput {
+    personId: ID!
+    vet: FollowVetInput!
+}
+
 type Query {
-    friend(id: ID!): Friend
-    dogBreeds: [DogBreed!]!
-    friends: [Friend!]!
+    person(id: ID!): PersonNode
 }
 
 type Mutation {
-    addFriend(item: FriendInput!): Friend!
-    addDog(item: DogBreedInput!): DogBreed!
+    follow(input: FollowInput!): FollowResult!
+}
+
+
+type PageInfo {
+    # Indicates whether the collection has an additional page when paginating forward.
+    hasNextPage: Boolean!
+    # The cursor of the last object in the returned slice of the collection.
+    endCursor: String!
 }

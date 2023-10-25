@@ -1,44 +1,41 @@
-import { Resolvers } from '../types';
+import { FollowConnectionResolvers, PersonNodeResolvers, Resolvers } from '../types';
 
 import { MutationResolvers } from "../types";
 
-import { DogBreedResolvers, FriendResolvers, QueryResolvers } from "../types";
+import { QueryResolvers } from "../types";
 
 // TODO: caching
 
 export const Query: QueryResolvers = {
-    friend: (_parent, args, ctx) => {
-        return ctx.datasources.friends.getById(args.id);
-    },
-    friends: (_parent, _args, ctx) => {
-        return ctx.datasources.friends.getAll();
-    },
-    dogBreeds: (_parent, _args, ctx) => {
-        return ctx.datasources.dogBreeds.getAll();
+    person: (_parent, args, ctx) => {
+        return {
+            id: args.id
+        };
+        // return ctx.datasources.person.getById(args.id);
     },
 
 }
-
-export const Friend: FriendResolvers = {
-    dogBreed: (parent, _args, ctx) => {
-        return ctx.datasources.dogBreeds.getById(parent.dogBreedId);
-    }
-}
-
-
-export const DogBreed: DogBreedResolvers = {
-
-};
 
 
 const Mutation: MutationResolvers = {
-    addFriend: (_, { item }, ctx) => {
-        return ctx.datasources.friends.add(item);
+    // addPerson: (_, { item }, ctx) => {
+    //     return ctx.datasources.person.add(item);
 
-    },
-    addDog: (_, { item }, ctx) => {
-        return ctx.datasources.dogBreeds.add(item);
+    // },
+    // addDog: (_, { item }, ctx) => {
+    //     return ctx.datasources.dogBreed.add(item);
+    // },
+
+    follow: (_, { input }, ctx) => {
+        return ctx.datasources.person.upsertFollowEdge(input);
     }
 };
 
-export const resolvers: Resolvers = { Query, Mutation, DogBreed, Friend };
+const PersonNode: PersonNodeResolvers = {
+    follows: (parent, args, ctx) => {
+        const personId = parent.id;
+        return ctx.datasources.person.getFollowedVetsForPerson(personId);
+    }
+}
+
+export const resolvers: Resolvers = { Query, Mutation, PersonNode };
