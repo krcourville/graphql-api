@@ -1,6 +1,6 @@
-import { PutCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
+import { PutCommand, QueryCommand, QueryCommandInput } from "@aws-sdk/lib-dynamodb";
 import { singleton } from '$app';
-import { FollowConnection, FollowInput, FollowResult } from "../types";
+import { FollowInput, FollowResult, InputMaybe, Maybe, QueryInput, VetFollowConnection, VetFollowerConnection } from "../types";
 import { EntityType, composeKey, extractId } from './data-types';
 import { AwsClients } from 'src/context/aws-clients';
 
@@ -8,8 +8,17 @@ function getCursor(id: string) {
     return Buffer.from(id).toString('base64');
 }
 
+function stringCoalesce(value: string) {
+    return value.length > 0 ? value : undefined;
+}
+
+function objectCoalesce(o: Record<string, any>) {
+    return Object.keys(o).length > 0 ? o : undefined;
+}
+
 @singleton()
-export class PersonDatasource {
+export class FriendDatasource {
+
 
     private readonly tableName = process.env.FRIENDS_DS__TABLE_NAME!;
 
@@ -21,8 +30,11 @@ export class PersonDatasource {
         const item = {
             pk: composeKey(EntityType.PERSON, input.personId),
             sk: composeKey(EntityType.FOLLOW, EntityType.VET, input.vet.vetId),
-            name: input.vet.name,
-            location: input.vet.location,
+            vet: {
+                // WARNING: searching is case sensitive
+                name: input.vet.name.toLowerCase(),
+                location: input.vet.location.toLowerCase(),
+            },
             established: new Date().toISOString(),
         };
         await this.aws.dynamoDocument.send(new PutCommand({
@@ -35,22 +47,44 @@ export class PersonDatasource {
         };
     }
 
-    public async getFollowedVetsForPerson(personId: string): Promise<FollowConnection> {
-        const dbResponse = await this.aws.dynamoDocument.send(new QueryCommand({
+    public async getFollowedVetsForPerson(personId: string, input: QueryInput | null = null): Promise<VetFollowConnection> {
+        let filter = "";
+        const values: Record<string, unknown> = {
+            ":pk": composeKey(EntityType.PERSON, personId)
+        };
+        const names: Record<string, string> = {};
+
+        if (input?.searchTerm != null) {
+            filter = 'contains(#vet.#name, :term) OR contains(#vet.#location, :term)'
+            Object.assign(values, {
+                ":term": input.searchTerm.toLowerCase(),
+            });
+            Object.assign(names, {
+                "#vet": "vet",
+                "#location": "location",
+                "#name": "name"
+            });
+        }
+
+        const queryCommandInput: QueryCommandInput = {
             TableName: this.tableName,
             KeyConditionExpression: "pk = :pk",
-            ExpressionAttributeValues: {
-                ":pk": composeKey(EntityType.PERSON, personId)
-            }
-        }));
+            FilterExpression: stringCoalesce(filter),
+            ExpressionAttributeValues: objectCoalesce(values),
+            ExpressionAttributeNames: objectCoalesce(names),
+        };
+
+        console.dir(queryCommandInput);
+
+        const dbResponse = await this.aws.dynamoDocument.send(new QueryCommand(queryCommandInput));
 
         const items = dbResponse.Items ?? [];
         const edges = items.map(item => {
             return {
                 established: item.established,
-                cursor: getCursor(item.sk),
+                cursor: getCursor(item.pk),
                 node: {
-                    id: extractId(item.sk)
+                    id: extractId(item.sk),
                 }
             }
         });
@@ -59,71 +93,38 @@ export class PersonDatasource {
             pageInfo: {
                 hasNextPage: false,
                 // TODO: should endCursor be required?
-                endCursor: edges.at(-1)?.cursor ?? '!!'
+                endCursor: edges.at(-1)?.cursor ?? 'TODO'
             },
             edges,
         }
     }
 
+    public async getFollowersForVet(vetId: string): Promise<VetFollowerConnection> {
+        const dbResponse = await this.aws.dynamoDocument.send(new QueryCommand({
+            TableName: this.tableName,
+            IndexName: 'index-sk',
+            KeyConditionExpression: "sk = :sk",
+            ExpressionAttributeValues: {
+                ":sk": composeKey(EntityType.FOLLOW, EntityType.VET, vetId)
+            }
+        }));
+        const items = dbResponse.Items ?? [];
+        const edges = items.map(item => {
+            return {
+                established: item.established,
+                cursor: getCursor(item.sk),
+                node: {
+                    id: extractId(item.pk)
+                }
+            }
+        });
 
-    // public async add(input: PersonInput): Promise<PersonModel> {
-    //     const item = {
-    //         pk: uuidv4(),
-    //         sk: EntityType.PERSON,
-    //         name: input.name,
-    //     };
-
-    //     await this.aws.dynamoDocument.send(new PutCommand({
-    //         TableName: this.tableName,
-    //         Item: item
-    //     }));
-
-    //     await this.aws.sns.send(new PublishCommand({
-    //         TopicArn: process.env.FRIENDS_DS__TOPIC_ARN!,
-    //         Subject: "FriendCreated",
-    //         Message: JSON.stringify(item),
-    //     }));
-
-
-    //     return {
-    //         id: item.pk,
-    //         name: input.name,
-    //     };
-    // }
-    // public async getById(id: string): Promise<PersonModel> {
-    //     const res = await this.aws.dynamoDocument.send(new GetCommand({
-    //         TableName: this.tableName,
-    //         Key: {
-    //             pk: id,
-    //             sk: EntityType.PERSON
-    //         }
-    //     }));
-    //     const item = res.Item;
-    //     if (item == null) {
-    //         throw new Error("Friend not found");
-    //     }
-    //     return {
-    //         id: item.pk,
-    //         name: item.name,
-    //     };
-    // }
-
-    // public async getAll(): Promise<PersonModel[]> {
-    //     // TODO: paging
-    //     const res = await this.aws.dynamoDocument.send(new QueryCommand({
-    //         TableName: this.tableName,
-    //         IndexName: "index-sk",
-    //         KeyConditionExpression: "sk = :sk",
-    //         ExpressionAttributeValues: {
-    //             ":sk": EntityType.PERSON,
-    //         }
-    //     }));
-    //     const items = res.Items ?? [];
-    //     // TODO: where should this common mapping logic be handled?
-    //     return items.map(item => ({
-    //         id: item.pk,
-    //         name: item.name,
-    //         dogBreedId: item.dogBreedId,
-    //     }));
-    // }
+        return {
+            pageInfo: {
+                hasNextPage: false,
+                endCursor: edges.at(-1)?.cursor ?? 'TODO'
+            },
+            edges,
+        };
+    }
 }

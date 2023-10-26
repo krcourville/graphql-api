@@ -1,4 +1,4 @@
-import { FollowConnectionResolvers, PersonNodeResolvers, Resolvers } from '../types';
+import { PersonNodeResolvers, Resolvers, VetNodeResolvers } from '../types';
 
 import { MutationResolvers } from "../types";
 
@@ -7,35 +7,38 @@ import { QueryResolvers } from "../types";
 // TODO: caching
 
 export const Query: QueryResolvers = {
-    person: (_parent, args, ctx) => {
+    person: (_parent, args, _ctx) => {
         return {
             id: args.id
         };
-        // return ctx.datasources.person.getById(args.id);
     },
+    vet: (_parent, args, _ctx) => {
+        return {
+            id: args.id
+        }
+    }
 
 }
 
 
 const Mutation: MutationResolvers = {
-    // addPerson: (_, { item }, ctx) => {
-    //     return ctx.datasources.person.add(item);
-
-    // },
-    // addDog: (_, { item }, ctx) => {
-    //     return ctx.datasources.dogBreed.add(item);
-    // },
-
     follow: (_, { input }, ctx) => {
-        return ctx.datasources.person.upsertFollowEdge(input);
+        return ctx.datasources.friend.upsertFollowEdge(input);
     }
 };
 
 const PersonNode: PersonNodeResolvers = {
-    follows: (parent, args, ctx) => {
+    follows: (parent, { input }, ctx) => {
         const personId = parent.id;
-        return ctx.datasources.person.getFollowedVetsForPerson(personId);
+        return ctx.datasources.friend.getFollowedVetsForPerson(personId, input);
     }
 }
 
-export const resolvers: Resolvers = { Query, Mutation, PersonNode };
+const VetNode: VetNodeResolvers = {
+    followers: (parent, args, ctx) => {
+        const vetId = parent.id;
+        return ctx.datasources.friend.getFollowersForVet(vetId);
+    }
+}
+
+export const resolvers: Resolvers = { Query, Mutation, PersonNode, VetNode };

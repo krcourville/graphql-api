@@ -8,6 +8,5 @@ export class ApiContext {
         public readonly datasources: Datasources,
         public readonly user: UserContextProvider,
     ) {
-        console.log('test');
     }
 }

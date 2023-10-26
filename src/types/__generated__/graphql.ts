@@ -18,19 +18,6 @@ export type Scalars = {
   Float: { input: number; output: number; }
 };
 
-export type FollowConnection = {
-  __typename?: 'FollowConnection';
-  edges: Array<FollowEdge>;
-  pageInfo: PageInfo;
-};
-
-export type FollowEdge = {
-  __typename?: 'FollowEdge';
-  cursor: Scalars['String']['output'];
-  established: Scalars['String']['output'];
-  node: VetNode;
-};
-
 export type FollowInput = {
   personId: Scalars['ID']['input'];
   vet: FollowVetInput;
@@ -65,19 +52,19 @@ export type PageInfo = {
 
 export type PersonNode = {
   __typename?: 'PersonNode';
-  follows?: Maybe<FollowConnection>;
+  follows?: Maybe<VetFollowConnection>;
   id: Scalars['ID']['output'];
 };
 
 
 export type PersonNodeFollowsArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
+  input?: InputMaybe<QueryInput>;
 };
 
 export type Query = {
   __typename?: 'Query';
   person?: Maybe<PersonNode>;
+  vet?: Maybe<VetNode>;
 };
 
 
@@ -85,9 +72,52 @@ export type QueryPersonArgs = {
   id: Scalars['ID']['input'];
 };
 
+
+export type QueryVetArgs = {
+  id: Scalars['ID']['input'];
+};
+
+export type QueryInput = {
+  after?: InputMaybe<Scalars['Int']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type VetFollowConnection = {
+  __typename?: 'VetFollowConnection';
+  edges: Array<VetFollowEdge>;
+  pageInfo: PageInfo;
+};
+
+export type VetFollowEdge = {
+  __typename?: 'VetFollowEdge';
+  cursor: Scalars['String']['output'];
+  established: Scalars['String']['output'];
+  node: VetNode;
+};
+
+export type VetFollowerConnection = {
+  __typename?: 'VetFollowerConnection';
+  edges: Array<VetFollowerEdge>;
+  pageInfo: PageInfo;
+};
+
+export type VetFollowerEdge = {
+  __typename?: 'VetFollowerEdge';
+  cursor: Scalars['String']['output'];
+  established: Scalars['String']['output'];
+  node: PersonNode;
+};
+
 export type VetNode = {
   __typename?: 'VetNode';
+  followers?: Maybe<VetFollowerConnection>;
   id: Scalars['ID']['output'];
+};
+
+
+export type VetNodeFollowersArgs = {
+  input?: InputMaybe<QueryInput>;
 };
 
 export type WithIndex<TObject> = TObject & Record<string, any>;
@@ -163,8 +193,6 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = ResolversObject<{
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
-  FollowConnection: ResolverTypeWrapper<FollowConnection>;
-  FollowEdge: ResolverTypeWrapper<FollowEdge>;
   FollowInput: FollowInput;
   FollowResult: ResolverTypeWrapper<FollowResult>;
   FollowVetInput: FollowVetInput;
@@ -174,15 +202,18 @@ export type ResolversTypes = ResolversObject<{
   PageInfo: ResolverTypeWrapper<PageInfo>;
   PersonNode: ResolverTypeWrapper<PersonNode>;
   Query: ResolverTypeWrapper<{}>;
+  QueryInput: QueryInput;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
+  VetFollowConnection: ResolverTypeWrapper<VetFollowConnection>;
+  VetFollowEdge: ResolverTypeWrapper<VetFollowEdge>;
+  VetFollowerConnection: ResolverTypeWrapper<VetFollowerConnection>;
+  VetFollowerEdge: ResolverTypeWrapper<VetFollowerEdge>;
   VetNode: ResolverTypeWrapper<VetNode>;
 }>;
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = ResolversObject<{
   Boolean: Scalars['Boolean']['output'];
-  FollowConnection: FollowConnection;
-  FollowEdge: FollowEdge;
   FollowInput: FollowInput;
   FollowResult: FollowResult;
   FollowVetInput: FollowVetInput;
@@ -192,21 +223,13 @@ export type ResolversParentTypes = ResolversObject<{
   PageInfo: PageInfo;
   PersonNode: PersonNode;
   Query: {};
+  QueryInput: QueryInput;
   String: Scalars['String']['output'];
+  VetFollowConnection: VetFollowConnection;
+  VetFollowEdge: VetFollowEdge;
+  VetFollowerConnection: VetFollowerConnection;
+  VetFollowerEdge: VetFollowerEdge;
   VetNode: VetNode;
-}>;
-
-export type FollowConnectionResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FollowConnection'] = ResolversParentTypes['FollowConnection']> = ResolversObject<{
-  edges?: Resolver<Array<ResolversTypes['FollowEdge']>, ParentType, ContextType>;
-  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type FollowEdgeResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FollowEdge'] = ResolversParentTypes['FollowEdge']> = ResolversObject<{
-  cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  established?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  node?: Resolver<ResolversTypes['VetNode'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type FollowResultResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FollowResult'] = ResolversParentTypes['FollowResult']> = ResolversObject<{
@@ -225,44 +248,61 @@ export type PageInfoResolvers<ContextType = ApiContext, ParentType extends Resol
 }>;
 
 export type PersonNodeResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['PersonNode'] = ResolversParentTypes['PersonNode']> = ResolversObject<{
-  follows?: Resolver<Maybe<ResolversTypes['FollowConnection']>, ParentType, ContextType, Partial<PersonNodeFollowsArgs>>;
+  follows?: Resolver<Maybe<ResolversTypes['VetFollowConnection']>, ParentType, ContextType, Partial<PersonNodeFollowsArgs>>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type QueryResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
   person?: Resolver<Maybe<ResolversTypes['PersonNode']>, ParentType, ContextType, RequireFields<QueryPersonArgs, 'id'>>;
+  vet?: Resolver<Maybe<ResolversTypes['VetNode']>, ParentType, ContextType, RequireFields<QueryVetArgs, 'id'>>;
+}>;
+
+export type VetFollowConnectionResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['VetFollowConnection'] = ResolversParentTypes['VetFollowConnection']> = ResolversObject<{
+  edges?: Resolver<Array<ResolversTypes['VetFollowEdge']>, ParentType, ContextType>;
+  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type VetFollowEdgeResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['VetFollowEdge'] = ResolversParentTypes['VetFollowEdge']> = ResolversObject<{
+  cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  established?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  node?: Resolver<ResolversTypes['VetNode'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type VetFollowerConnectionResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['VetFollowerConnection'] = ResolversParentTypes['VetFollowerConnection']> = ResolversObject<{
+  edges?: Resolver<Array<ResolversTypes['VetFollowerEdge']>, ParentType, ContextType>;
+  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type VetFollowerEdgeResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['VetFollowerEdge'] = ResolversParentTypes['VetFollowerEdge']> = ResolversObject<{
+  cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  established?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  node?: Resolver<ResolversTypes['PersonNode'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type VetNodeResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['VetNode'] = ResolversParentTypes['VetNode']> = ResolversObject<{
+  followers?: Resolver<Maybe<ResolversTypes['VetFollowerConnection']>, ParentType, ContextType, Partial<VetNodeFollowersArgs>>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type Resolvers<ContextType = ApiContext> = ResolversObject<{
-  FollowConnection?: FollowConnectionResolvers<ContextType>;
-  FollowEdge?: FollowEdgeResolvers<ContextType>;
   FollowResult?: FollowResultResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   PageInfo?: PageInfoResolvers<ContextType>;
   PersonNode?: PersonNodeResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
+  VetFollowConnection?: VetFollowConnectionResolvers<ContextType>;
+  VetFollowEdge?: VetFollowEdgeResolvers<ContextType>;
+  VetFollowerConnection?: VetFollowerConnectionResolvers<ContextType>;
+  VetFollowerEdge?: VetFollowerEdgeResolvers<ContextType>;
   VetNode?: VetNodeResolvers<ContextType>;
 }>;
 
-
-/**
- * @typedef {Object} FollowConnection
- * @property {Array<FollowEdge>} edges
- * @property {PageInfo} pageInfo
- */
-
-/**
- * @typedef {Object} FollowEdge
- * @property {string} cursor
- * @property {string} established
- * @property {VetNode} node
- */
 
 /**
  * @typedef {Object} FollowInput
@@ -295,16 +335,51 @@ export type Resolvers<ContextType = ApiContext> = ResolversObject<{
 
 /**
  * @typedef {Object} PersonNode
- * @property {FollowConnection} [follows]
+ * @property {VetFollowConnection} [follows]
  * @property {string} id
  */
 
 /**
  * @typedef {Object} Query
  * @property {PersonNode} [person]
+ * @property {VetNode} [vet]
+ */
+
+/**
+ * @typedef {Object} QueryInput
+ * @property {number} [after]
+ * @property {number} [first]
+ * @property {string} [searchTerm]
+ */
+
+/**
+ * @typedef {Object} VetFollowConnection
+ * @property {Array<VetFollowEdge>} edges
+ * @property {PageInfo} pageInfo
+ */
+
+/**
+ * @typedef {Object} VetFollowEdge
+ * @property {string} cursor
+ * @property {string} established
+ * @property {VetNode} node
+ */
+
+/**
+ * @typedef {Object} VetFollowerConnection
+ * @property {Array<VetFollowerEdge>} edges
+ * @property {PageInfo} pageInfo
+ */
+
+/**
+ * @typedef {Object} VetFollowerEdge
+ * @property {string} cursor
+ * @property {string} established
+ * @property {PersonNode} node
  */
 
 /**
  * @typedef {Object} VetNode
+ * @property {VetFollowerConnection} [followers]
  * @property {string} id
  */

@@ -10,31 +10,69 @@
 # https://www.apollographql.com/docs/react/pagination/cursor-based/
 # https://relay.dev/graphql/connections.htm
 
-type VetNode {
-    id: ID!
+# TODO: Spread across multiple files
+# https://the-guild.dev/graphql/tools/docs/schema-merging#file-loading
+
+# Query.common
+
+type PageInfo {
+    # Indicates whether the collection has an additional page when paginating forward.
+    hasNextPage: Boolean!
+    # The cursor of the last object in the returned slice of the collection.
+    endCursor: String!
 }
 
-type FollowEdge {
+input QueryInput {
+    first: Int
+    after: Int
+    searchTerm: String
+}
+
+# Query.vet
+
+type VetFollowerEdge {
+    established: String!
+    node: PersonNode!
+    cursor: String!
+}
+
+type VetFollowerConnection {
+    pageInfo: PageInfo!
+    edges: [VetFollowerEdge!]!
+}
+
+type VetNode {
+    id: ID!
+    followers(input: QueryInput): VetFollowerConnection
+}
+
+
+# Query.person
+
+type VetFollowEdge {
     established: String!
     node: VetNode!
     cursor: String!
 }
 
-type FollowConnection {
+type VetFollowConnection {
     pageInfo: PageInfo!
-    edges: [FollowEdge!]!
+    edges: [VetFollowEdge!]!
 }
 
 type PersonNode {
     id: ID!
-    follows(first: Int, after: String): FollowConnection
+    follows(input: QueryInput): VetFollowConnection
 }
 
+# Queries
 
-
-type FollowResult {
-    success: Boolean!
+type Query {
+    person(id: ID!): PersonNode
+    vet(id: ID!): VetNode
 }
+
+# Mutation.follow
 
 input FollowVetInput {
     vetId: ID!
@@ -47,18 +85,12 @@ input FollowInput {
     vet: FollowVetInput!
 }
 
-type Query {
-    person(id: ID!): PersonNode
+type FollowResult {
+    success: Boolean!
 }
+
+# Mutations
 
 type Mutation {
     follow(input: FollowInput!): FollowResult!
-}
-
-
-type PageInfo {
-    # Indicates whether the collection has an additional page when paginating forward.
-    hasNextPage: Boolean!
-    # The cursor of the last object in the returned slice of the collection.
-    endCursor: String!
 }

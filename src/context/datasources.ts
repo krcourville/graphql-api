@@ -1,9 +1,9 @@
 import { singleton } from '$app';
-import { PersonDatasource } from "$data";
+import { FriendDatasource } from "$data";
 
 @singleton()
 export class Datasources {
     constructor(
-        public readonly person: PersonDatasource,
+        public readonly friend: FriendDatasource,
     ) { }
 }
